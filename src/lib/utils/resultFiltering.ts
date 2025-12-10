@@ -15,6 +15,7 @@ export function shouldFilterDeletedFromReadResult(
 export function filterSoftDeletedResults(result: any, config: ModelConfig) {
   // filter out deleted records from array results
   if (result && Array.isArray(result)) {
+    console.log("sdfds");
     return result.filter(
       (item) => item[config.field] !== config.createValue(true)
     );
@@ -22,6 +23,7 @@ export function filterSoftDeletedResults(result: any, config: ModelConfig) {
 
   // if the result is deleted return null
   if (result && result[config.field]) {
+    console.log("dasfafdsafsd");
     return null;
   }
 
