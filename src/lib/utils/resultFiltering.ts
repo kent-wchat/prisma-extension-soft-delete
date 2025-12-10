@@ -5,6 +5,7 @@ export function shouldFilterDeletedFromReadResult(
   params: { args: any },
   config: ModelConfig
 ): boolean {
+  console.log("argh");
   return (
     !params.args.where ||
     typeof params.args.where[config.field] === "undefined" ||
