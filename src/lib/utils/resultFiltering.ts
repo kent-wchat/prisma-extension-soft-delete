@@ -16,7 +16,7 @@ export function filterSoftDeletedResults(result: any, config: ModelConfig) {
   // filter out deleted records from array results
   if (result && Array.isArray(result)) {
     return result.filter(
-      (item) => item[config.field] !== config.createValue(false)
+      (item) => item[config.field] !== config.createValue(true)
     );
   }
 
