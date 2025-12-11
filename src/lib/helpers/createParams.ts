@@ -94,11 +94,14 @@ export const createDeleteManyParams: CreateParams = (config, params) => {
       args: {
         where: {
           ...where,
-          [config.field]: config.isDeletedValueUnique
-            ? {
-                not: config.createValue(true),
-              }
-            : config.createValue(false),
+          // allow overriding the deleted field in where
+          [config.field]:
+            params.args?.where?.[config.field] ||
+            (config.isDeletedValueUnique
+              ? {
+                  not: config.createValue(true),
+                }
+              : config.createValue(false)),
         },
         data: {
           [config.field]: config.createValue(true),
