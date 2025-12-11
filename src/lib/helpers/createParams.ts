@@ -94,7 +94,11 @@ export const createDeleteManyParams: CreateParams = (config, params) => {
       args: {
         where: {
           ...where,
-          [config.field]: config.createValue(false),
+          [config.field]: config.isDeletedValueUnique
+            ? {
+                not: config.createValue(true),
+              }
+            : config.createValue(false),
         },
         data: {
           [config.field]: config.createValue(true),
@@ -137,7 +141,12 @@ export const createUpdateManyParams: CreateParams = (config, params) => {
           ...params.args?.where,
           // allow overriding the deleted field in where
           [config.field]:
-            params.args?.where?.[config.field] || config.createValue(false),
+            params.args?.where?.[config.field] ||
+            (config.isDeletedValueUnique
+              ? {
+                  not: config.createValue(true),
+                }
+              : config.createValue(false)),
         },
       },
     },
@@ -154,10 +163,7 @@ export const createUpsertParams: CreateParams = (_, params) => {
   return { params };
 };
 
-function validateFindUniqueParams(
-  params: Params,
-  config: ModelConfig
-): void {
+function validateFindUniqueParams(params: Params, config: ModelConfig): void {
   const uniqueIndexFields = uniqueIndexFieldsByModel[params.model || ""] || [];
   const uniqueIndexField = Object.keys(params.args?.where || {}).find((key) =>
     uniqueIndexFields.includes(key)
@@ -215,7 +221,13 @@ export const createFindUniqueParams: CreateParams = (config, params) => {
         where: {
           ...params.args?.where,
           // allow overriding the deleted field in where
-          [config.field]: params.args?.where?.[config.field] || config.createValue(false),
+          [config.field]:
+            params.args?.where?.[config.field] ||
+            (config.isDeletedValueUnique
+              ? {
+                  not: config.createValue(true),
+                }
+              : config.createValue(false)),
         },
       },
     },
@@ -238,7 +250,13 @@ export const createFindUniqueOrThrowParams: CreateParams = (config, params) => {
         where: {
           ...params.args?.where,
           // allow overriding the deleted field in where
-          [config.field]: params.args?.where?.[config.field] || config.createValue(false),
+          [config.field]:
+            params.args?.where?.[config.field] ||
+            (config.isDeletedValueUnique
+              ? {
+                  not: config.createValue(true),
+                }
+              : config.createValue(false)),
         },
       },
     },
@@ -256,7 +274,12 @@ export const createFindFirstParams: CreateParams = (config, params) => {
           ...params.args?.where,
           // allow overriding the deleted field in where
           [config.field]:
-            params.args?.where?.[config.field] || config.createValue(false),
+            params.args?.where?.[config.field] ||
+            (config.isDeletedValueUnique
+              ? {
+                  not: config.createValue(true),
+                }
+              : config.createValue(false)),
         },
       },
     },
@@ -274,7 +297,10 @@ export const createFindFirstOrThrowParams: CreateParams = (config, params) => {
           ...params.args?.where,
           // allow overriding the deleted field in where
           [config.field]:
-            params.args?.where?.[config.field] || config.createValue(false),
+            params.args?.where?.[config.field] ||
+            (config.isDeletedValueUnique
+              ? { not: config.createValue(true) }
+              : config.createValue(false)),
         },
       },
     },
@@ -292,7 +318,10 @@ export const createFindManyParams: CreateParams = (config, params) => {
           ...params.args?.where,
           // allow overriding the deleted field in where
           [config.field]:
-            params.args?.where?.[config.field] || config.createValue(false),
+            params.args?.where?.[config.field] ||
+            (config.isDeletedValueUnique
+              ? { not: config.createValue(true) }
+              : config.createValue(false)),
         },
       },
     },
@@ -311,7 +340,10 @@ export const createGroupByParams: CreateParams = (config, params) => {
           ...params.args?.where,
           // allow overriding the deleted field in where
           [config.field]:
-            params.args?.where?.[config.field] || config.createValue(false),
+            params.args?.where?.[config.field] ||
+            (config.isDeletedValueUnique
+              ? { not: config.createValue(true) }
+              : config.createValue(false)),
         },
       },
     },
@@ -330,7 +362,11 @@ export const createCountParams: CreateParams = (config, params) => {
         where: {
           ...where,
           // allow overriding the deleted field in where
-          [config.field]: where[config.field] || config.createValue(false),
+          [config.field]:
+            where[config.field] ||
+            (config.isDeletedValueUnique
+              ? { not: config.createValue(true) }
+              : config.createValue(false)),
         },
       },
     },
@@ -349,7 +385,11 @@ export const createAggregateParams: CreateParams = (config, params) => {
         where: {
           ...where,
           // allow overriding the deleted field in where
-          [config.field]: where[config.field] || config.createValue(false),
+          [config.field]:
+            where[config.field] ||
+            (config.isDeletedValueUnique
+              ? { not: config.createValue(true) }
+              : config.createValue(false)),
         },
       },
     },
@@ -366,7 +406,12 @@ export const createWhereParams: CreateParams = (config, params) => {
         ...params,
         args: {
           OR: [
-            { [config.field]: { not: config.createValue(false) } },
+            // Ignore the record if it has been soft-deleted
+            {
+              [config.field]: config.isDeletedValueUnique
+                ? config.createValue(true)
+                : { not: config.createValue(false) },
+            },
             params.args,
           ],
         },
@@ -379,7 +424,11 @@ export const createWhereParams: CreateParams = (config, params) => {
       ...params,
       args: {
         ...params.args,
-        [config.field]: params.args[config.field] || config.createValue(false),
+        [config.field]:
+          params.args[config.field] ||
+          (config.isDeletedValueUnique
+            ? { not: config.createValue(true) }
+            : config.createValue(false)),
       },
     },
   };
@@ -408,7 +457,10 @@ export const createIncludeParams: CreateParams = (config, params) => {
           ...params.args?.where,
           // allow overriding the deleted field in where
           [config.field]:
-            params.args?.where?.[config.field] || config.createValue(false),
+            params.args?.where?.[config.field] ||
+            (config.isDeletedValueUnique
+              ? { not: config.createValue(true) }
+              : config.createValue(false)),
         },
       },
     },
@@ -442,7 +494,10 @@ export const createSelectParams: CreateParams = (config, params) => {
           ...params.args?.where,
           // allow overriding the deleted field in where
           [config.field]:
-            params.args?.where?.[config.field] || config.createValue(false),
+            params.args?.where?.[config.field] ||
+            (config.isDeletedValueUnique
+              ? { not: config.createValue(true) }
+              : config.createValue(false)),
         },
       },
     },

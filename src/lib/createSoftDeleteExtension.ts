@@ -36,6 +36,15 @@ export function createSoftDeleteExtension({
   defaultConfig = {
     field: "deleted",
     createValue: Boolean,
+    isDeletedValueUnique: false,
+    /**
+     * isDeletedValueUnique: false (default)
+     * - deleted: can have different values, e.g. date
+     * - not deleted: must have static value, e.g. null
+     * isDeletedValueUnique: true
+     * - deleted: must have static value, e.g. "DELETED"
+     * - not deleted: can have different values, e.g. "ACTIVE", "ARCHIVED"
+     */
     allowToOneUpdates: false,
     allowCompoundUniqueIndexWhere: false,
   },
