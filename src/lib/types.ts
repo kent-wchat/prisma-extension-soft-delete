@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 export type ModelConfig = {
   field: string;
   createValue: (deleted: boolean) => any;
+  isDeletedValueUnique?: boolean;
   allowToOneUpdates?: boolean;
   allowCompoundUniqueIndexWhere?: boolean;
 };
